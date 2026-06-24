@@ -69,11 +69,41 @@ async function createVapidJWT(endpoint, env) {
     bytesToB64url(enc.encode(JSON.stringify(payload)));
 
   const key = await importVapidSigningKey(env.VAPID_PUBLIC, env.VAPID_PRIVATE);
-  // Web Crypto ECDSA produces the raw r||s (IEEE P1363) signature ES256 needs.
+  // Web Crypto ECDSA produces the raw r||s (IEEE P1363) signature ES256 needs,
+  // but toRawEcdsaSignature() also handles a DER-encoded result defensively.
   const sig = await crypto.subtle.sign(
     { name: "ECDSA", hash: "SHA-256" }, key, enc.encode(signingInput)
   );
-  return signingInput + "." + bytesToB64url(new Uint8Array(sig));
+  return signingInput + "." + bytesToB64url(toRawEcdsaSignature(sig));
+}
+
+// ES256 (JWT) requires a 64-byte r||s signature. The Workers Web Crypto API
+// already returns that form, but if a runtime ever hands back a DER-encoded
+// ECDSA signature (SEQUENCE of two INTEGERs), convert it to raw r||s.
+function toRawEcdsaSignature(sig) {
+  const bytes = new Uint8Array(sig);
+  if (bytes.length === 64) return bytes;   // already raw r||s
+  if (bytes[0] !== 0x30) return bytes;     // not DER; nothing we can do, pass through
+
+  let offset = 2;
+  if (bytes[1] & 0x80) offset += bytes[1] & 0x7f; // skip long-form SEQUENCE length
+
+  const readInt = () => {
+    // bytes[offset] is the 0x02 INTEGER tag
+    let len = bytes[offset + 1];
+    let start = offset + 2;
+    while (len > 0 && bytes[start] === 0x00) { start++; len--; } // strip leading zero
+    const val = bytes.slice(start, start + len);
+    offset = start + len;
+    return val;
+  };
+
+  const r = readInt();
+  const s = readInt();
+  const out = new Uint8Array(64);
+  out.set(r.slice(-32), 32 - Math.min(r.length, 32));
+  out.set(s.slice(-32), 64 - Math.min(s.length, 32));
+  return out;
 }
 
 // --- Payload encryption (RFC 8291 / RFC 8188 aes128gcm) ---------------------
@@ -205,7 +235,7 @@ export async function sendToAll(message, env) {
           failed++;
           let body = "";
           try { body = (await res.text()).slice(0, 300); } catch (_) {}
-          errors.push(`${host}: HTTP ${res.status} ${res.statusText} ${body}`.trim());
+          errors.push(`${host}: status=${res.status} body=${body}`);
           if (res.status === 404 || res.status === 410) {
             await env.KV.delete(entry.name);
           }
