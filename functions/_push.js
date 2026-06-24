@@ -60,7 +60,9 @@ async function createVapidJWT(endpoint, env) {
   const payload = {
     aud,
     exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
-    sub: env.VAPID_SUBJECT || "mailto:admin@example.com",
+    // No silent fallback: a missing/blank subject is caught by missingEnv() so
+    // it surfaces as "missing env" instead of a confusing 401 from the push service.
+    sub: env.VAPID_SUBJECT,
   };
   const signingInput =
     bytesToB64url(enc.encode(JSON.stringify(header))) + "." +
@@ -139,6 +141,12 @@ async function encryptPayload(subscription, payload) {
 
 // --- Transport --------------------------------------------------------------
 
+// Returns the list of required bindings/env vars that are missing or blank.
+export function missingEnv(env) {
+  const required = ["VAPID_PUBLIC", "VAPID_PRIVATE", "VAPID_SUBJECT", "KV"];
+  return required.filter((k) => !env || !env[k]);
+}
+
 async function sendOne(subscription, message, env) {
   const body = await encryptPayload(subscription, message);
   const jwt = await createVapidJWT(subscription.endpoint, env);
@@ -156,9 +164,18 @@ async function sendOne(subscription, message, env) {
 
 // Send `message` (a string — typically JSON the service worker reads as
 // {title, body}) to every subscription stored under the "sub:" KV prefix.
-// Returns { sent, failed }. Subscriptions the push service reports as gone
-// (404/410) are pruned from KV.
+// Returns { sent, failed, errors } — `errors` holds a human-readable reason
+// (exception message, or HTTP status + response body) for every failure.
+// Subscriptions the push service reports as gone (404/410) are pruned from KV.
 export async function sendToAll(message, env) {
+  const errors = [];
+
+  const missing = missingEnv(env);
+  if (missing.length) {
+    errors.push("missing env: " + missing.join(", "));
+    return { sent: 0, failed: 0, errors };
+  }
+
   let sent = 0, failed = 0;
   let cursor;
 
@@ -167,24 +184,39 @@ export async function sendToAll(message, env) {
     for (const entry of list.keys) {
       const raw = await env.KV.get(entry.name);
       if (!raw) continue;
+
       let sub;
-      try { sub = JSON.parse(raw); } catch (_) { failed++; continue; }
+      try {
+        sub = JSON.parse(raw);
+      } catch (e) {
+        failed++;
+        errors.push(`${entry.name}: invalid JSON (${e.message})`);
+        continue;
+      }
+
+      let host = entry.name;
+      try { host = new URL(sub.endpoint).host; } catch (_) {}
+
       try {
         const res = await sendOne(sub, message, env);
         if (res.ok) {
           sent++;
         } else {
           failed++;
+          let body = "";
+          try { body = (await res.text()).slice(0, 300); } catch (_) {}
+          errors.push(`${host}: HTTP ${res.status} ${res.statusText} ${body}`.trim());
           if (res.status === 404 || res.status === 410) {
             await env.KV.delete(entry.name);
           }
         }
-      } catch (_) {
+      } catch (e) {
         failed++;
+        errors.push(`${host}: ${e.message}`);
       }
     }
     cursor = list.list_complete ? undefined : list.cursor;
   } while (cursor);
 
-  return { sent, failed };
+  return { sent, failed, errors };
 }
