@@ -1,0 +1,6 @@
+body { background:#0d1117; color:#e6edf3; font-family:monospace;
+       display:flex; flex-direction:column; align-items:center;
+       justify-content:center; min-height:100vh; margin:0; gap:20px; }
+button { background:#1f6feb; color:#fff; border:none; padding:16px 28px;
+         font-size:16px; border-radius:8px; }
+#log { font-size:13px; color:#8b949e; padding:0 20px; text-align:center; }

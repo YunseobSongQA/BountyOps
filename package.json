@@ -1,0 +1,14 @@
+{
+  "name": "bountyops",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PWA + Cloudflare Pages Functions that push Claude Code hook alerts via Web Push.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev .",
+    "deploy": "wrangler pages deploy ."
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
