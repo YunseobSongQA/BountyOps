@@ -1,0 +1,12 @@
+# 지시문 파일 — VAPID 개인키 등 비밀이 들어 있어 커밋하지 않음
+prompt*.txt
+
+# 의존성 / 빌드 산출물
+node_modules/
+.wrangler/
+dist/
+
+# 로컬 환경
+.dev.vars
+.env
+.env.*
