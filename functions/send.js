@@ -11,7 +11,12 @@ export async function onRequestGet({ request, env }) {
     env
   );
 
+  // result is { sent, failed, errors }. Reflect failures in the HTTP status so
+  // callers/monitoring see a non-200 when nothing got delivered, while the body
+  // always carries the detailed `errors` array for debugging.
+  const status = result.failed > 0 && result.sent === 0 ? 500 : 200;
   return new Response(JSON.stringify(result), {
+    status,
     headers: { "content-type": "application/json" },
   });
 }
