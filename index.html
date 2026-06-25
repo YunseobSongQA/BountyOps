@@ -3,89 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#1a120b">
+  <meta name="theme-color" content="#1b1512">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rye&family=Special+Elite&family=IM+Fell+English:ital@0;1&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rye&family=DM+Serif+Display:ital@0;1&display=swap">
   <link rel="stylesheet" href="/style.css">
-  <title>BountyOps — 보안관 사무소</title>
+  <title>BountyOps — 코드 알림 보초</title>
 </head>
 <body>
-  <div class="grain"></div>
-
-  <header class="poster-top">
-    <div class="badge">★</div>
-    <h1 class="title">BOUNTY<span>OPS</span></h1>
-    <p class="tagline">노하우를 쌓고, 무법자에게 한 발 먹이는 ─ 코드 현상금 사무소</p>
-    <div class="rope"></div>
+  <header class="site-head">
+    <div class="brand">BountyOps</div>
+    <p class="lede">위험한 코드 행동을 저지르기 전에 알려주는 <b>알림 보초</b>.
+      Claude Code 훅에 물려두면, 정해둔 규칙에 걸릴 때 이 기기로 한 발 울려준다.</p>
   </header>
 
+  <!-- 무엇을 하면 되는지 가장 먼저 -->
+  <section class="steps">
+    <button class="step" data-go="territory">
+      <span class="n">1</span>
+      <span class="st">
+        <span class="t">저장소 연결</span>
+        <span class="d">감시할 깃허브 저장소를 고른다</span>
+      </span>
+    </button>
+    <button class="step" data-go="rules">
+      <span class="n">2</span>
+      <span class="st">
+        <span class="t">규칙 등록</span>
+        <span class="d">잡고 싶은 행동과 경고를 적는다</span>
+      </span>
+    </button>
+    <button class="step" data-go="home">
+      <span class="n">3</span>
+      <span class="st">
+        <span class="t">알림 켜기</span>
+        <span class="d">걸릴 때 알림을 받는다</span>
+      </span>
+    </button>
+  </section>
+
   <nav class="tabs">
-    <button class="tab is-active" data-tab="office">⭐ 보안관 본부</button>
-    <button class="tab" data-tab="territory">🤠 내 구역</button>
-    <button class="tab" data-tab="bounties">🔫 수배령</button>
+    <button class="tab is-active" data-tab="home">현황</button>
+    <button class="tab" data-tab="territory">저장소</button>
+    <button class="tab" data-tab="rules">규칙</button>
   </nav>
 
   <main>
-    <!-- 보안관 본부 -->
-    <section id="office" class="panel is-active">
-      <div class="card alarm-card">
-        <h2>총잡이 호출 ─ 알림 켜기</h2>
-        <p class="muted">위험한 코드 행동이 수배령에 걸리면, 이 기기로 총소리가 울린다.</p>
-        <button id="enable" class="btn-iron">알림 켜기</button>
-        <button id="testShot" class="btn-ghost">시험 사격 🔫</button>
-        <div id="log" class="ticker">버튼을 눌러 보안관을 깨워라.</div>
+    <!-- 현황 -->
+    <section id="home" class="panel is-active">
+      <div class="card">
+        <h2>알림 받기</h2>
+        <p class="muted">규칙에 걸리는 행동이 감지되면 이 기기로 알려준다.</p>
+        <div class="actions">
+          <button id="enable" class="btn">알림 켜기</button>
+          <button id="testShot" class="btn-text">시험 알림 보내기</button>
+        </div>
+        <div id="log" class="status">버튼을 눌러 이 기기를 등록하세요.</div>
       </div>
 
       <div class="card">
-        <h2>전과 기록부 <span class="muted small">— 쌓이는 노하우</span></h2>
-        <p class="muted small">훅에 걸린 사건들이 여기 차곡차곡 쌓인다. 같은 실수, 두 번은 없다.</p>
+        <h2>최근에 걸린 일</h2>
+        <p class="muted">규칙에 걸린 행동들이 여기에 차곡차곡 쌓인다 — 같은 실수, 두 번은 없다.</p>
         <div id="incidents" class="ledger">
-          <div class="empty">아직 잡힌 무법자가 없다. 조용한 마을이군.</div>
+          <div class="empty">아직 걸린 게 없다. 조용한 마을이군.</div>
         </div>
       </div>
     </section>
 
-    <!-- 내 구역 (깃허브 프로젝트) -->
+    <!-- 저장소 -->
     <section id="territory" class="panel">
       <div class="card">
-        <h2>구역 넓히기 ─ 깃허브 연결</h2>
-        <p class="muted small">감시할 깃허브 저장소를 <code>owner/repo</code> 로 적어 연결해라. 구역마다 전용 수배령을 걸 수 있다.</p>
+        <h2>깃허브 저장소 연결</h2>
+        <p class="muted">감시할 저장소를 <code>owner/repo</code> 로 연결한다. 저장소마다 전용 훅 URL이 생기고,
+          그 저장소에만 적용할 규칙을 따로 둘 수 있다.</p>
         <div class="row">
           <input id="repoInput" class="field" placeholder="예) octocat/Hello-World" autocomplete="off">
-          <button id="connectRepo" class="btn-iron">연결</button>
+          <button id="connectRepo" class="btn">연결</button>
         </div>
-        <div id="repoLog" class="ticker"></div>
-        <div id="projects" class="territory-list">
-          <div class="empty">연결된 구역이 없다. 첫 영역을 차지해보게.</div>
+        <div id="repoLog" class="status"></div>
+        <div id="projects" class="list">
+          <div class="empty">연결된 저장소가 없다.</div>
         </div>
       </div>
     </section>
 
-    <!-- 수배령 (규칙) -->
-    <section id="bounties" class="panel">
+    <!-- 규칙 -->
+    <section id="rules" class="panel">
       <div class="card">
-        <h2>새 수배령 발부</h2>
-        <p class="muted small">어떤 행동을 잡을지 단서(패턴)를 적고, 걸렸을 때 외칠 경고를 서부 감성으로 남겨라.</p>
+        <h2>규칙 추가</h2>
+        <p class="muted">어떤 행동을 잡을지 단서(정규식)를 적고, 걸렸을 때 띄울 경고를 남긴다.</p>
 
-        <div class="poster-form">
-          <label>수배 구역
+        <div class="form">
+          <label>적용 범위
             <select id="ruleScope" class="field">
-              <option value="common">공통 — 모든 구역</option>
+              <option value="common">공통 — 모든 저장소</option>
             </select>
           </label>
 
-          <label>무법자 이름
-            <input id="ruleName" class="field" placeholder="예) 한밤중 배포꾼">
+          <label>규칙 이름
+            <input id="ruleName" class="field" placeholder="예) 한밤중 프로덕션 배포">
           </label>
 
           <div class="grid2">
             <label>감시 대상
               <select id="ruleTarget" class="field">
-                <option value="command">명령어 (command)</option>
-                <option value="file">파일 경로 (file)</option>
-                <option value="any">아무거나 (any)</option>
+                <option value="command">명령어</option>
+                <option value="file">파일 경로</option>
+                <option value="any">아무거나</option>
               </select>
             </label>
             <label>위험 등급
@@ -97,54 +122,55 @@
             </label>
           </div>
 
-          <div class="grid2">
-            <label>현상금
-              <input id="ruleBounty" class="field" placeholder="$500" value="$300">
-            </label>
-            <label>튀어나올 물건
-              <select id="ruleIcon" class="field">
-                <option value="gun">🔫 권총</option>
-                <option value="hat">🤠 모자</option>
-                <option value="star">⭐ 보안관 별</option>
-                <option value="skull">💀 해골</option>
-                <option value="dynamite">🧨 다이너마이트</option>
-              </select>
-            </label>
-          </div>
-
-          <label>수배 단서 (정규식)
+          <label>단서 (정규식)
             <input id="rulePattern" class="field mono" placeholder="예) git\s+push.*prod">
           </label>
 
-          <label>걸렸을 때 외칠 경고 <span class="muted small">(서부 감성으로)</span>
+          <label>걸렸을 때 띄울 경고
             <textarea id="ruleMessage" class="field" rows="2" placeholder="예) 그 길로 가면 프로덕션이 불바다 된다, 친구."></textarea>
           </label>
 
-          <button id="saveRule" class="btn-iron wide">수배령 붙이기 🪧</button>
-          <div id="ruleLog" class="ticker"></div>
+          <details class="extra">
+            <summary>알림에 띄울 표식 · 현상금 <span class="muted small">(선택)</span></summary>
+            <div class="grid2">
+              <label>표식
+                <select id="ruleIcon" class="field">
+                  <option value="gun">권총 🔫</option>
+                  <option value="hat">모자 🤠</option>
+                  <option value="star">보안관 별 ⭐</option>
+                  <option value="skull">해골 💀</option>
+                  <option value="dynamite">다이너마이트 🧨</option>
+                </select>
+              </label>
+              <label>현상금
+                <input id="ruleBounty" class="field" placeholder="$300" value="$300">
+              </label>
+            </div>
+          </details>
+
+          <button id="saveRule" class="btn wide">규칙 추가</button>
+          <div id="ruleLog" class="status"></div>
         </div>
       </div>
 
       <div class="card">
-        <h2>붙어있는 수배 포스터들</h2>
-        <div class="row tight">
-          <label class="muted small">구역별 보기:
-            <select id="viewScope" class="field slim">
-              <option value="common">공통</option>
-            </select>
-          </label>
+        <div class="card-head">
+          <h2>등록된 규칙</h2>
+          <select id="viewScope" class="field slim">
+            <option value="common">공통</option>
+          </select>
         </div>
-        <div id="rulesList" class="posters">
-          <div class="empty">수배령을 불러오는 중…</div>
+        <div id="rulesList" class="list">
+          <div class="empty">불러오는 중…</div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- 총/모자가 튀어나오는 토스트 -->
+  <!-- 규칙에 걸렸을 때, 총이나 모자가 한 번 튀어나온다 (재미 포인트) -->
   <div id="toast" class="toast" aria-live="polite"></div>
 
-  <footer class="muted small">BountyOps · 한 발이면 충분하다.</footer>
+  <footer>BountyOps · 한 발이면 충분하다.</footer>
 
   <script src="/script.js" defer></script>
 </body>
