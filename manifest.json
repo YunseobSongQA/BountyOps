@@ -1,10 +1,11 @@
 {
-  "name": "BountyOps",
+  "name": "BountyOps — 보안관 사무소",
   "short_name": "BountyOps",
+  "description": "노하우를 쌓고 조언해주는 현상금 사냥꾼 길드. 위험한 코드 행동에 총과 모자로 경고한다.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
+  "background_color": "#1a120b",
+  "theme_color": "#1a120b",
   "icons": [
     { "src": "/icon.png", "sizes": "192x192", "type": "image/png" }
   ]
